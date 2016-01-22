@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        
+        <script src="scripts/phaser-arcade-physics.min.js"></script>
+        
+        <script src="prefabs/gameText.js"></script>
+        <script src="prefabs/sqr.js"></script>
+        
+        <script src="states/boot.js"></script>
+        <script src="states/preload.js"></script>
+        <script src="states/menu.js"></script>
+        <script src="states/game.js"></script>
+        <script src="states/end.js"></script>
+    </head>
+
+    <body>
+        <div id = 'game'></div>
+        
+        <script>
+        
+            var game = new Phaser.Game(460, 640, Phaser.AUTO, 'game');
+        
+            game.state.add( 'boot', Remember.boot, true );
+            game.state.add( 'preload', Remember.preload );
+            game.state.add( 'menu', Remember.menu );
+            game.state.add( 'game', Remember.game );
+            game.state.add( 'end', Remember.end );
+
+        </script>
+    </body>
+</html>

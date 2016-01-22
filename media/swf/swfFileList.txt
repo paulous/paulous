@@ -1,0 +1,31 @@
+ausIdol_760x450.swf
+bmi_300X250.swf
+carlton_300x250.swf
+carlton_728x90.swf
+Copy of 400X600_00.swf
+Copy of 400X600_01.swf
+elle.swf
+ford_120x600_lig.swf
+ford_120x600.swf
+ford_300x250.swf
+haven_300X250.swf
+jeremiah_kick.swf
+listmyfolder.txt
+merc_160x600.swf
+merc_300x250.swf
+merc_Eclass_300x250.swf
+nissan_300X250.swf
+nissan_800X600.swf
+NTL_300x250.swf
+paConsult.swf
+palmLeafs08.swf
+quorn_160x300.swf
+quorn_300x250.swf
+rzoneMovie.swf
+splenda_300x600_01.swf
+splenda_300x600.swf
+STC_03.swf
+swfFileList.txt
+waitrose_500x300.swf
+weetbix_940x660.swf
+whitepages_300x250.swf
