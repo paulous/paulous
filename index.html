@@ -10,11 +10,10 @@
 
   <body>
     <div id="TopNav">
-      <div class="color-bar"></div>
       <ul class="top-nav-ul">
         <li class="logo">
           <a href="#" >
-            <img src="media/svg/logo_blue.svg" height="50" width="50">
+            <a href="#" onclick="genPageTranzOut( 'aboutcnt', 'About', true )"><img src="media/svg/logo_blue.svg" height="60" width="60"></a>
           </a>
         </li>
         <li class="top-nav-li" id="About"><a href="#">ABOUT</a></li>
@@ -24,27 +23,29 @@
     </div>
     <div id="MainContainer">
       <div id="SubAnimate">
-          <ul class="sub-nav" id="SubNav">
+          <ul id="SubNav">
             <li>
               <a href="#">Replaced by subnavlinks.html</a>
             </li>
           </ul>
       </div>
-      <div class="main-content" id="MainContent">
+      <div id="MainContent">
         <!--Replaced by section content-->
       </div>
       <div id="Footer">
         <!--Replaced by footer.html content-->
       </div>
     </div>
+    <div id="Splash">
+      <!--for splash only-->
+    </div>
 
-    <script src='js/vendor/zepto.min.js'></script>
+    <script src='js/vendor/jquery-2.2.0.min.js'></script>
     <script src='js/vendor/swfobject.js'></script>
-    <!--<script src='../assets/scripts/vendor/hammer.min.js'></script>-->
-    <!--<script src='../assets/scripts/vendor/swipe.js'></script>-->
     <script src='js/vendor/velocity.min.js'></script>
     <script src='js/vendor/velocity.ui.min.js'></script>
     <script src='js/vendor/jquery.blast.min.js'></script>
+    <script src='js/vendor/svg.min.js'></script>
     <script src='js/pf-min.js'></script>
 
 
