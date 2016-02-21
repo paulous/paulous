@@ -1,5 +1,5 @@
 var ajaxLoad,
-ajaxpath = '/Sites/pf02/public';
+ajaxpath = '../';
 $(document).ready(function() {
   ajaxLoad = function ( cb, loadPath, ID, indId ) {
     var pathID = loadPath + ' ' + ID;
