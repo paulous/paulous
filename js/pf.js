@@ -10,14 +10,16 @@ $(document).ready(function() {
     }, function( resp ) {
       $(indId).load( pathID, function( html ) {
         if (cb == 'splash'){ // callback to transition in
-          setTimeout(splashInit, 8000); // splash text delay
+          setTimeout(splashInit, 6000); // splash text delay
           polyInit();
-        } else if (cb == 'About') { // Any about
-          genPageTranzIn(ID); // specific about
+        } else if (cb == 'About') { // Any About sect
+          genPageTranzIn(ID); // fade in selected sect
         } else if (cb == 'Create') {
           introSwf (ID);
-        } else if (cb == 'Tech') { // Any about
-          genPageTranzIn(ID); // specific about
+        } else if (cb == 'Tech') {
+          genPageTranzIn(ID);
+        } else if (cb == 'Footer') {
+          genPageTranzIn(ID);
         }
       })
     })
@@ -136,6 +138,7 @@ $(document).ready(function() {
     })
   }
   genPageTranzIn = function (id) { //Trans in new
+    console.log(id);
     $(id).velocity({
       opacity: 1
     }, {
@@ -449,47 +452,48 @@ $(document).ready(function() {
 
 var swfIntro,
 about,
-tech,
-footer;
+tech;
 $(document).ready(function() {
-  swfIntro = function (swfID) { // Called from subbar.html
+  swfIntro = function (id) { // Called from subbar.html
     ajaxLoad(
       'Create', // Unique after load key eg. after load fade-in, ajax.js
       ajaxpath + '/swfintro.html', // File to load
-      '#'+swfID, // ID to retrive from file
+      '#'+id, // ID to retrive from file
       '#MainContent' // ID to put into
     );
-    $('#footer').remove(); // Remove footer for all
+    if ( $('#Footer').is(':parent') ){$('#Footer').html('');} // Remove footer
   }
-  about = function (aboutID) { // Called from subbar.html
+  about = function (id) { // Called from subbar.html
     ajaxLoad(
       'About', // Unique after load key eg. after load fade-in, ajax.js
-      ajaxpath + '/' + aboutID + '.html', // File to load
-      '#'+aboutID, // ID to retrive from file
+      ajaxpath + '/' + id + '.html', // File to load
+      '#'+id, // ID to retrive from file
       '#MainContent' // ID to put into
     );
-    if (aboutID !== 'aboutcnt') { // Don't add a footer to some
-      footer ('footer'); // Add footer
+    if (id == 'aboutcnt') { // Don't add a footer to contact
+      $('#Footer').html(''); // Unload the footer
     }else {
-      $('#footer').html(''); // Unload the footer
+      footer ('footer');
     }
   }
-  tech = function (techID) { // Called from subbar.html
+  tech = function (id) { // Called from subbar.html
     ajaxLoad(
       'Tech', // Unique after load key eg. after load fade-in, ajax.js
-      ajaxpath + '/' + techID + '.html', // File to load
-      '#'+techID, // ID to retrive from file
+      ajaxpath + '/' + id + '.html', // File to load
+      '#'+id, // ID to retrive from file
       '#MainContent' // ID to put into
     );
     footer ('footer');
   }
-  footer = function (footerID) { // Called from subbar.html
-    ajaxLoad(
-      'Footer', // Unique after load key eg. after load fade-in, ajax.js
-      ajaxpath + '/' + footerID + '.html', // File to load
-      '#'+footerID, // ID to retrive from file
-      '#Footer' // ID to put into
-    );
+  var footer = function (id) {
+    if ($('#Footer').is(':empty')){ // check if footer is empty
+      ajaxLoad(
+        'Footer', // Unique after load key eg. after load fade-in, ajax.js
+        ajaxpath + '/' + id + '.html', // File to load
+        '#'+id, // ID to retrive from file
+        '#Footer' // ID to put into
+      );
+    }
   }
 });
 
@@ -734,14 +738,18 @@ $(document).ready(function() {
   var tog = '#About', lastog, subup, blaster, slowenter, slowleave, slow, clicked;
   //
   // Top nav animation
-  var subSectTxt =  function (getid) {
+  var subSectTxt =  function (id) {
     ajaxLoad(
       null, // after load do nothing
       ajaxpath + "/subbar.html", // File to load
-      getid, // ID to retrive from file
+      id, // ID to retrive from file
       "#SubAnimate" // ID to put into
     );
   }
+  subSectTxt("#SubNavCreate"); // init subnav menus
+  subSectTxt("#SubNavTech");
+  subSectTxt("#SubNavAbout");
+  //
   // Resize subnav menus
   navHeight = function (){
       var top = $("#TopNav").height();
