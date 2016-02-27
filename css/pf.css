@@ -140,7 +140,7 @@ img {
 
 .top-nav-li a {
   display: block;
-  padding: 1.7rem 1rem 1.7rem 1rem;
+  padding: 1.7rem;
   background-size: 100% 200%;
   background-image: linear-gradient(to bottom, #152c33 51%, #ffa800 49%);
   transition: background-position 0.5s ease-out;
@@ -429,7 +429,7 @@ img {
   opacity: 0;
 }
 
-.foot-poly, .foot-cont {
+.foot-svg, .foot-cont {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;

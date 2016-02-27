@@ -1,4 +1,6 @@
 var ajaxLoad,
+footsvg,
+//ajaxpath = '/Sites/pf02/public';
 ajaxpath = '../';
 $(document).ready(function() {
   ajaxLoad = function ( cb, loadPath, ID, indId ) {
@@ -32,7 +34,6 @@ shuffle,
 randNum,
 randColor;
 $(document).ready(function() {
-  var subup = true; // control resize calls.
   //
   // Register custom velocity UI effects
   $.Velocity.RegisterUI('headColorIn', {
@@ -80,23 +81,15 @@ $(document).ready(function() {
     }
     return color;
   }
-  // On window resize
-  window.addEventListener('resize', function(e) {
-    if (subup && this.innerWidth < 768) { // subup allows just once and reset
-      subup = false;
-      $('#MainContainer').css({ transform: // when subbar size changes...
-        'translateY(' + navHeight().sub + 'px)'}); // get new height and move
-    } else if (!subup && this.innerWidth > 768) {
-      subup = true;
-    }
-  }, false);
 });
 
 var introSwf,
 genPageTranzIn,
 genPageTranzOut;
 $(document).ready(function() {
-  var swflastid, genlastid = '#SplashAjax', lastsubsec;
+  var swflastid,
+  genlastid = '.abslt-txt', // fade intro txt
+  lastsubsec;
   introSwf = function (ID) {
     headBlast();
     if (swflastid != undefined) {
@@ -138,13 +131,28 @@ $(document).ready(function() {
     })
   }
   genPageTranzIn = function (id) { //Trans in new
-    console.log(id);
     $(id).velocity({
       opacity: 1
     }, {
       duration: 300,
       easing: 'easeInCubic'
     })
+  }
+  var defaultAnim = { // change splash anim
+    mod:2, // send more polys to anim per cycle
+    set: 14000,
+    anim: function (e, i){ // Splash anim
+      $(e).velocity({
+        stroke: randColor(),
+        strokeOpacity: 1
+      }, { duration: randNum(500,1000), delay: i*randNum(50,200)})
+      .velocity({
+        strokeOpacity: randNum(1, 6, true)/10
+      },{
+        //queue: false,
+        duration: randNum(500,2000)
+      });
+    }
   }
   genPageTranzOut = function (id, subsec, t) { //Trans out old
     $(genlastid).velocity({ // Fade out current ajax load
@@ -153,10 +161,9 @@ $(document).ready(function() {
       duration: 300,
       easing: 'easeOutCubic',
       complete: function(e) {
-        if (genlastid == '#SplashAjax') { // stop remove splash
-          $('#Splash').remove();
+        if (genlastid == '.abslt-txt') { // stop splash txt
           splashInit(true);
-          reMorph(null, null, true);
+          morph (defaultAnim);
         }
         if (subsec == 'About'){
           if (t && lastsubsec !== subsec){ // if logo clicked hilite nav 'About'
@@ -178,12 +185,12 @@ $(document).ready(function() {
 });
 
 var polyInit,
-reMorph;
+morph;
 $(document).ready(function() {
   var svg, // init vars
   aSvg = [],
   xy = [],
-  abc = {a:0, b:1, c:2, tog:0},
+  abc = {a:0, b:1, c:2, tog:0, o:{}},
   min = 0,
   mid = 70, // change size of poly
   max = mid*2,
@@ -191,8 +198,15 @@ $(document).ready(function() {
   xP = numP/4, // change division of rows
   xpos = 0,
   ypos = 0, // scale poly = mid ++ --
-  timer;
+  timer = false;
   //
+  abc.o.extend = function(obj) {
+    for (var i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        this[i] = obj[i];
+      }
+    }
+  };
   // Init SVG after html has loaded
   polyInit = function () {
     svg = SVG('Poly').addClass('svg-poly');
@@ -214,12 +228,14 @@ $(document).ready(function() {
 
     var id = 'poly-'+String(n);
     var poly = svg.polygon(pts).fill('#152c33')
-    .stroke({ color: '#a4dee6', opacity: 0.3, width: 1 })
+    .stroke({
+      color: '#a4dee6',
+      opacity: randNum(1, 5, true)/10,
+      width: 1
+    })
     .move(xpos*mid, ypos*max)
     .addClass(id)
     .addClass('polygon');
-
-    poly.animate(20).plot(pts);
 
     return {
       id: id,
@@ -253,26 +269,36 @@ $(document).ready(function() {
           xt:false, yt:false});
       }
     }
-    abc.cid = [];
-    aSvg.forEach(function(v){ abc.cid.push(v.id); });
-    shuffle(abc.cid);
-    abc.cid.forEach(function(v, i){ randOpcty('.' + v, i); });
-
-    setTimeout( function() {
-      morph(3000); // Start the polyMorph
-    }, 10);
-  }
-  //
-  // Random Opacity for all polygons
-  var randOpcty = function(p, n) {
-    $(p).velocity({
-      opacity: randNum(0, 10, true)/10,
-      fill: randColor()
-    }, { duration: randNum(500,1000), delay: n*randNum(50,200)})
-    .velocity({
-      opacity: randNum(2, 10, true)/10,
-      fill:'#152c33'
+    // set first o props for polys
+    abc.o.extend ({
+      stp:false, // stop animation
+      rpt:250, // number of repeats
+      set:8000, // set duration
+      mod:3, // polys shuffled per cycle, higer number smaller quantity
+      anim: function (e, i){ // Splash anim
+        $(e).velocity({
+          opacity: randNum(0, 10, true)/10,
+          fill: randColor(),
+          stroke: randColor(),
+          strokeOpacity: 1
+        }, {duration: randNum(500,1000), delay: i*randNum(50,200)})
+        .velocity({
+          strokeOpacity: randNum(1, 6, true)/10,
+          opacity: randNum(2, 10, true)/10,
+          fill:'#152c33'
+        });
+      }
     });
+    abc.cid = []; // create shuffle array
+    aSvg.forEach(function(v){ abc.cid.push(v.id); });
+    abc.shfl = function (f){
+      shuffle(this.cid); // shuffle polly ids
+      this.cid.forEach(function (v, i){if(i % this.o.mod == 0 || f){ // animate props
+        this.o.anim('.' + v, i);
+      }}.bind(this));
+    };
+    abc.shfl(true); // shuffle all polygons
+    morph(false, true); // morph polygons to first random set
   }
   //
   // Provides random numbers for poly pts
@@ -285,46 +311,43 @@ $(document).ready(function() {
     return num;
   }
   //
-  // Init poly morph for first time
-  var morph = function (dur){
-    abc.dur = dur ;
-    sortPts(abc);
-    timer = setTimeout(function(){
-      reMorph(250, 8000)
-    }, 5000);
-  }
-  //
-  // All additional calls to morph polygons
-  reMorph = function (rpt, dur, t){ // any additional passes
-    if (t) {clearTimeout(timer); return;} // stop reMorph
-    if (dur){ // external call, set duration and repeat numbers
-      abc.rpt = rpt;
+  // morph polygons
+  morph = function (o, f){ // o = props for polygons
+    if (o){ // external call, reset props
+      if (o.stp) {clearTimeout(timer); return;} // stop morph
+      abc.o.extend(o); // extend obj with new props only
+      if (timer) {
+        abc.shfl(false); // Don't wait for timer, shuffle now
+        return;} // if timer is running return
     }
-    abc.dur = randNum(3000, 8000);
+    abc.o.dur = randNum(abc.o.set/3, abc.o.set); // reset rand duration for each call
+    if (!f) { // skipped on first call
+      // toggle random numbers between a, b and c for morphPts()
+      abc.tog == 0
+      ? (abc.a=1, abc.b=2, abc.c=3, abc.tog = 1)
+      : (abc.a=3, abc.b=2, abc.c=1, abc.tog = 0);
 
-    // toggle random numbers between a, b and c for morphPts()
-    abc.tog == 0
-    ? (abc.a=1, abc.b=2, abc.c=3, abc.tog = 1)
-    : (abc.a=3, abc.b=2, abc.c=1, abc.tog = 0);
-
-    xy.forEach(function (v) { // create new set of randoms for x, y
-      v.x[abc.b] = rNums({x:v.x[0]}); // set second array item to rand
-      v.y[abc.b] = rNums({y:v.y[0]});
-    });
+      xy.forEach(function (v) { // create new set of randoms for x, y
+        v.x[abc.b] = rNums({x:v.x[0]}); // set second array item to rand
+        v.y[abc.b] = rNums({y:v.y[0]});
+      });
+      abc.shfl(false); // shuffle mod polygons
+    }
     // below is my funky fix for animating pts with svg.js
     aSvg.forEach(function (v){v.poly.animate(200).plot(v.pts);});
-    setTimeout(function(){sortPts(abc)}, 100); // call sortPts()
-    abc.cid.forEach(function (v, i){if(i % 3 == 0){randOpcty('.' + v, i);}});
+    setTimeout(function(){sortPts()}, 100); // call sortPts()
+
     timer = setTimeout(function(){ // number of repeats = abc.rpt
-      abc.rpt--;
-      if (abc.rpt !== 0) {
-        reMorph();
+      timer = false; // detect if timer is running, if called externaly
+      abc.o.rpt--;
+      if (abc.o.rpt !== 0) {
+        morph();
       }
-    }, abc.dur);
+    }, abc.o.dur);
   }
   //
   // Sorts polys into groups of 6 for more efficient point comparison
-  var sortPts = function (abc){
+  var sortPts = function (){
     // Step through 6 aSvg[] calls where xy[] will be called only once.
     // This will allow all 6 aSvg[].pts[] to be examined for matches with xy[].
     // 3 from the top and 3 from directly below. Range and step make this possible.
@@ -332,7 +355,7 @@ $(document).ready(function() {
     var range = 0, step = 2, ro = Math.round(xP/2); // step of 2+2 allows for the last poly to be first time
     for (var j = 0; j < xy.length-1; j++){ // length-8 or ro will skip last row
       for (var i = 0; i < 6; i++){ // 6 = 3 from top and 3 from directly below
-        morphPts ( xy[j], aSvg[range], abc ); // xy has length 41
+        morphPts ( xy[j], aSvg[range] ); // xy has length 41
         if (range == step) { // if true get the 3 directly below by...
           j < xy.length-ro ? range += xP-2 : null; // forwarding range 13. len-8 for last row
         }else {
@@ -345,7 +368,7 @@ $(document).ready(function() {
   }
   //
   // Finaly apply new random numbers and morph pts
-  var morphPts = function ( xyr, svg, abc ) {
+  var morphPts = function ( xyr, svg ) {
     for(var i = 0; i < 3; i++){ // [[x,y],[x,y],[x.y]]
       svg.pts[i].forEach(function (v, j){ // [x,y]
         if (j == 0){ // x point
@@ -360,7 +383,7 @@ $(document).ready(function() {
 
         svg.pts[i][0] = xyr.x[abc.b]; // svg = b
         svg.pts[i][1] = xyr.y[abc.b]; // change pts to random b
-        svg.poly.animate(abc.dur).plot(svg.pts);
+        svg.poly.animate(abc.o.dur).plot(svg.pts);
 
         xyr.x[abc.c] = xyr.x[abc.b]; // c = b
         xyr.y[abc.c] = xyr.y[abc.b]; // take new random b pts and add to c
@@ -732,126 +755,180 @@ $(document).ready(function() {
   }
 });
 
-var navHeight; // called from animate.js. resize window
 $(document).ready(function() {
   // Init vars for top nav section select, enter and leave animation
-  var tog = '#About', lastog, subup, blaster, slowenter, slowleave, slow, clicked;
+  var tog = '#About',
+  lastog,
+  subup,
+  blaster,
+  slowenter,
+  slowleave,
+  slow,
+  clicked,
+  size = true;
   //
   // Top nav animation
-  var subSectTxt =  function (id) {
+  var subTxt =  function (id) {
     ajaxLoad(
       null, // after load do nothing
-      ajaxpath + "/subbar.html", // File to load
+      ajaxpath + '/subbar.html', // File to load
       id, // ID to retrive from file
-      "#SubAnimate" // ID to put into
+      '#SubAnimate' // ID to put into
     );
   }
-  subSectTxt("#SubNavCreate"); // init subnav menus
-  subSectTxt("#SubNavTech");
-  subSectTxt("#SubNavAbout");
   //
-  // Resize subnav menus
-  navHeight = function (){
-      var top = $("#TopNav").height();
-      var sub = -$("#SubAnimate").height() + top;
-      return {top:top, sub:sub}
-  }
-  //
-  $(".top-nav-li").on("mouseenter",(function(e) {
+  // Top nav enter
+  var topEnter = function (e){ // start timer for mouseEnter (normal nav)
     slowleave = false;
     slowenter = setTimeout(function (){ //pause before activating
       slowleave = true;
       subup = false;
-
-      if (this.id == "Create") { subSectTxt("#SubNavCreate"); }
-      else if (this.id == "Tech") { subSectTxt("#SubNavTech"); }
-      else if (this.id == "About") { subSectTxt("#SubNavAbout"); }
-
-      $("#SubAnimate").css({ transform: "translateX(" + 0 + "px)"}); // Subnav set X to 0
-      hoverRemove();
-
-      tog = "#" + this.id; // Add class to new hover
-      if (clicked != tog ){
-        $(tog).addClass("top-nav-li");
-        tranzInOut(clicked, .5); // clicked tab fade to .5
-      }
-      // Animate open subnav
-      $("#MainContainer").velocity({
-        translateY: navHeight().top,
-      }, {
-        queue: false,
-        duration: 300,
-        easing: "easeOutSine",
-      });
+      topEnterClick(this.id); // call
     }.bind(this), 300);
-  }));
+  }
   //
-  // Keep button state with top-nav-out
-  $(".top-nav-li").on("mouseleave", (function(e) {
-    clearTimeout(slowenter);
+  var topEnterClick = function (id, t){ // Call directly for clicks (small nav)
+    if (id.data) { // for small nav only
+      if (id.data.r == this.id){ // second click on same tab will close
+        subUpDwn(height().sub, 'easeInSine'); // close subbar
+        id.data.r = ''; // reset so subbar can open if re-clicked
+        return;
+      }else {id.data.r = this.id;} // get last sect id
+      t = id.data.t; // get data from id before it changes
+      id = this.id; // change id to clicked
+    }
+
+    if (id == 'Create') { subTxt('#SubNavCreate'); }
+    else if (id == 'Tech') { subTxt('#SubNavTech'); }
+    else if (id == 'About') { subTxt('#SubNavAbout'); }
+
+    $('#SubAnimate').css({ transform: 'translateX(' + 0 + 'px)'}); // Subnav set X to 0
+    subUpDwn(height().top, 'easeOutSine'); // Animate open subnav
+
+    tog = '#' + id; // Add class to new hover
+    if (clicked != tog ){
+      $(tog).addClass('top-nav-li');
+      tranzInOut(clicked, .5); // clicked tab fade to .5
+    }
+    if (t) {$(tog).addClass('top-nav-out');} // only on small nav click, tab active
+  }
+  //
+  // Top nav leave
+  var topLeave = function (e) {
+    clearTimeout(slowenter); // clear if left before 300ms
     if (slowleave){
-      if (e.pageY < navHeight().top) {
+      if (e.pageY < height().top) {
         slow = this.id;
-        slowenter = setTimeout(function(){ // slow call to subUp()
+        slowenter = setTimeout(function(){ // slow call to subUpDwn()
           slow = null;
-          subUp(); // Animate close subnav
+          subUpDwn(height().sub, 'easeInSine'); // Animate close subnav
         }, 300);
       }else { // only add hover if tab is active
-        tog = "#"+this.id;
-        $(tog).addClass("top-nav-out");
+        tog = '#'+this.id;
+        $(tog).addClass('top-nav-out');
       }
     }
-  }));
+  }
+  // Subbar click
+  var subClick = function (e){
+    clicked = tog; // Set clicked, get id of topnav for hilite
+    blaster = true;
+
+    if (e.data.t) { // if nav norm else small
+      hoverRemove(); // remove previous active hover.
+    }else {
+      subUpDwn(height().sub, 'easeInSine'); //small nav, close and active tab
+    }
+  }
+  //
+  // Subbar enter
+  var subEnter = function (e) {
+    clearTimeout(slowenter); // Set by top or sub leave. lazy for 300ms
+    if (typeof slow === 'string') { // slow set to id of top leave. or false
+      $('#'+slow).addClass('top-nav-out'); // use slow string id to keep hover active
+      slow = null; // reset to false
+    }
+    subup = true;
+  }
+  //
+  // Subbar leave
+  var subLeave = function (e) {
+    slowenter = setTimeout(function () { // lazy close sub menu
+      if (e.pageY > height().top || subup) { // Collaps subnav if mouseY > 75px
+        subUpDwn(height().sub, 'easeInSine'); // Animate close subnav
+      }
+      if (blaster) { headBlast(); } // blast section headline if true
+      blaster = false;
+    }, 300);
+  }
+  //
+  // Animate close subbar
+  var subUpDwn = function (updwn, ez){
+    hoverRemove(); // remove previous active hover
+    $('#MainContainer').velocity({
+      translateY: updwn // get subnav size
+    }, {
+      queue: false,
+      duration: 200,
+      easing: ez,
+    });
+  }
+  // Mouse events
+  var events = function (norm, first) {
+    if (!first){$('#SubAnimate').off('click');} // if there is something to turn off
+    $('#SubAnimate').on('click', {t:norm}, subClick); // set click true or false
+    if (norm) { // for normal nav
+      if (!first){$('.top-nav-li').off('click');}
+      $('.top-nav-li').on('mouseenter',topEnter);
+      $('.top-nav-li').on('mouseleave', topLeave);
+      $('#SubAnimate').on('mouseenter', subEnter);
+      $('#SubAnimate').on('mouseleave', subLeave);
+    } else { // for small nav
+      if (!first){$('.top-nav-li').off('mouseenter mouseleave');}
+      if (!first){$('#SubAnimate').off('mouseenter mouseleave');}
+      $('.top-nav-li').on('click',{t:true, r:''}, topEnterClick);
+    }
+  }
   //
   // Remove hover from last selected or rolled over
   var hoverRemove = function () {
     tranzInOut(lastog, 1); // catch lasttog before change. Fade it in
     if (clicked != tog){ // don't remove overstate if subbar clicked
-      $(tog).removeClass("top-nav-out"); // remove if not the active tab
+      $(tog).removeClass('top-nav-out'); // remove if not the active tab
     }else { // access to last active tog
       if (tog != lastog){ // remove only if tog has changed through link click
-        $(lastog).removeClass("top-nav-out"); // remove last held butt state
+        $(lastog).removeClass('top-nav-out'); // remove last held butt state
       }
       lastog = tog; // capture last tog
     }
   }
   //
+  // use for any to fade in or out, eg tab focus
   var tranzInOut = function (id, inout) {
-    $(id).velocity ( {opacity: inout}, {queue: false, duration: 300}); // clicked tab focus
+    $(id).velocity ( {opacity: inout},
+    {queue: false, duration: 300});
   }
-  $("#SubAnimate").on("click", (function(e) {
-    clicked = tog; // Set clicked, get id of topnav for hilite
-    blaster = true;
-    hoverRemove(); // remove previous active hover
-  }));
+  // Resize subnav menus
+  var height = function (){
+      var top = $('#TopNav').height();
+      var sub = -$('#SubAnimate').height() + top;
+      return {top:top, sub:sub}
+  }
   //
-  // Subnav leave animation
-  $("#SubAnimate").on("mouseenter", (function(e) {
-    clearTimeout(slowenter); // Set by top or sub leave. lazy for 300ms
-    if (typeof slow === 'string') { // slow set to id of top leave. or false
-      $('#'+slow).addClass("top-nav-out"); // use slow string id to keep hover active
-      slow = null; // reset to false
+  // On window resize
+  $(window).on('resize', function(e, first) {
+    if (size && this.innerWidth < 768) { // subup allows just once and reset
+      size = false;
+      events(false, first);
+      setTimeout(function(){ // needs time to detect height change
+        $('#MainContainer').css({ transform: // when subbar size changes...
+        'translateY(' + height().sub  + 'px)'}); // get new height and move
+      },100);
+    } else if (!size && this.innerWidth > 768  || first) {
+      size = true;
+      events(true, first);
+      $('#MainContainer').css({ transform: 'translateY(0)'}); // get new height and move
     }
-    subup = true;
-  }));
-  $("#SubAnimate").on("mouseleave", (function(e) {
-    slowenter = setTimeout(function () { // lazy close sub menu
-      if (e.pageY > navHeight().top || subup) { // Collaps subnav if mouseY > 75px
-        subUp (); // Animate close subnav
-      }
-      if (blaster) { headBlast(); } // blast section headline if true
-      blaster = false;
-    }, 300);
-  }));
-  // Animate close subbar
-  var subUp = function (){
-    hoverRemove(); // remove previous active hover
-    $("#MainContainer").velocity({
-      translateY: navHeight().sub // get subnav size
-    }, {
-      queue: false,
-      duration: 200,
-      easing: "easeInSine",
-    });
-  }
+  });
+  $(window).trigger('resize', [true]); // Init Top and Sub nav events for screen orientation
 });
