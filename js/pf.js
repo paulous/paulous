@@ -791,6 +791,7 @@ $(document).ready(function() {
     if (id.data) { // for small nav only
       if (id.data.r == this.id){ // second click on same tab will close
         subUpDwn(height().sub, 'easeInSine'); // close subbar
+        $('#'+this.id).removeClass('top-nav-out');
         id.data.r = ''; // reset so subbar can open if re-clicked
         return;
       }else {id.data.r = this.id;} // get last sect id
